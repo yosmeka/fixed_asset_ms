@@ -12,11 +12,11 @@ export function AssetModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm overflow-y-auto scrollbar-hide p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-4"
       onClick={handleBackdropClick}
     >
       <div className="relative bg-white rounded-xl shadow-xl w-full max-w-2xl my-8 mx-auto">
-        <div className="max-h-[90vh] overflow-y-auto scrollbar-hide p-6">
+        <div className="p-6">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 transition-colors"
