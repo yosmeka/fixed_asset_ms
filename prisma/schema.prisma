@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role?     @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  assets        Asset[]
+  disposals     Disposal[]
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Asset {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  type            String
+  purchaseDate    DateTime
+  cost            Decimal   @db.Decimal(10, 2)
+  location        String
+  condition       String
+  status          AssetStatus @default(ACTIVE)
+  depreciationMethod DepreciationMethod @default(STRAIGHT_LINE)
+  usefulLife      Int       // in years
+  salvageValue    Decimal   @db.Decimal(10, 2)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  depreciationRecords DepreciationRecord[]
+  disposals       Disposal[]
+}
+
+model DepreciationRecord {
+  id              String    @id @default(cuid())
+  assetId         String
+  asset           Asset     @relation(fields: [assetId], references: [id])
+  year            Int
+  amount          Decimal   @db.Decimal(10, 2)
+  accumulatedDepreciation Decimal @db.Decimal(10, 2)
+  bookValue       Decimal   @db.Decimal(10, 2)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Disposal {
+  id              String    @id @default(cuid())
+  assetId         String
+  asset           Asset     @relation(fields: [assetId], references: [id])
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  disposalDate    DateTime
+  disposalValue   Decimal   @db.Decimal(10, 2)
+  reason          String
+  status          DisposalStatus @default(PENDING)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+  ASSET_MANAGER
+  FINANCE_OFFICER
+  COMPLIANCE_OFFICER
+}
+
+enum AssetStatus {
+  ACTIVE
+  DISPOSED
+  MAINTENANCE
+}
+
+enum DepreciationMethod {
+  STRAIGHT_LINE
+  DECLINING_BALANCE
+  UNITS_OF_PRODUCTION
+}
+
+enum DisposalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+} 
