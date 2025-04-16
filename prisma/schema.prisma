@@ -110,8 +110,8 @@ enum Role {
 
 enum AssetStatus {
   ACTIVE
+  INACTIVE
   DISPOSED
-  MAINTENANCE
 }
 
 enum DepreciationMethod {

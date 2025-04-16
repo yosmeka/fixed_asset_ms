@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 
 interface DataTableProps<TData extends Record<string, any>> {
   columns: {
@@ -16,9 +18,18 @@ interface DataTableProps<TData extends Record<string, any>> {
     cell?: (row: { getValue: (key: keyof TData) => any }) => React.ReactNode;
   }[];
   data: TData[];
+  onView?: (row: TData) => void;
+  onEdit?: (row: TData) => void;
+  onDelete?: (row: TData) => void;
 }
 
-export function DataTable<TData extends Record<string, any>>({ columns, data }: DataTableProps<TData>) {
+export function DataTable<TData extends Record<string, any>>({ 
+  columns, 
+  data,
+  onView,
+  onEdit,
+  onDelete 
+}: DataTableProps<TData>) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredData = data.filter((item) =>
@@ -46,6 +57,7 @@ export function DataTable<TData extends Record<string, any>>({ columns, data }: 
                   {column.header}
                 </TableHead>
               ))}
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -59,6 +71,40 @@ export function DataTable<TData extends Record<string, any>>({ columns, data }: 
                         : String(row[column.accessorKey])}
                     </TableCell>
                   ))}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {onView && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onView(row)}
+                          className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {onEdit && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onEdit(row)}
+                          className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onDelete(row)}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (

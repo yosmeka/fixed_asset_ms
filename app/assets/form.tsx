@@ -31,31 +31,46 @@ const formSchema = z.object({
   cost: z.string().min(1, "Cost is required"),
   location: z.string().min(1, "Location is required"),
   condition: z.string().min(1, "Condition is required"),
+  status: z.enum(["ACTIVE", "INACTIVE", "DISPOSED"]).default("ACTIVE"),
   usefulLife: z.string().min(1, "Useful life is required"),
   salvageValue: z.string().min(1, "Salvage value is required"),
 });
 
-export function AssetForm({ onClose }: { onClose?: () => void }) {
+import { Asset, AssetStatus } from '@/types/asset';
+
+interface AssetFormProps {
+  onClose?: () => void;
+  asset?: Asset;
+  onSuccess?: (updatedAsset: Asset) => void;
+}
+
+type FormValues = z.infer<typeof formSchema>;
+
+export function AssetForm({ onClose, asset, onSuccess }: AssetFormProps) {
   const router = useRouter();
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      type: "",
-      purchaseDate: "",
-      cost: "",
-      location: "",
-      condition: "",
-      usefulLife: "",
-      salvageValue: "",
+      name: asset?.name || "",
+      description: asset?.description || "",
+      type: asset?.type || "",
+      purchaseDate: asset?.purchaseDate ? new Date(asset.purchaseDate).toISOString().split('T')[0] : "",
+      cost: asset?.cost?.toString() || "",
+      location: asset?.location || "",
+      condition: asset?.condition || "",
+      status: asset?.status || "ACTIVE",
+      usefulLife: asset?.usefulLife?.toString() || "",
+      salvageValue: asset?.salvageValue?.toString() || "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await fetch("/api/assets", {
-        method: "POST",
+      const url = asset?.id ? `/api/assets/${asset.id}` : "/api/assets";
+      const method = asset?.id ? "PUT" : "POST";
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -69,10 +84,9 @@ export function AssetForm({ onClose }: { onClose?: () => void }) {
         throw new Error(data.error || "Failed to create asset");
       }
 
-      toast.success("Asset created successfully");
+      toast.success(asset?.id ? "Asset updated successfully" : "Asset created successfully");
+      onSuccess?.(data);
       onClose?.();
-      router.push("/assets");
-      router.refresh();
     } catch (error: any) {
       console.error("Form submission error:", error);
       toast.error(error.message || "Failed to create asset");
@@ -183,17 +197,30 @@ export function AssetForm({ onClose }: { onClose?: () => void }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Condition</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <Input className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter condition" {...field} />
+              </FormControl>
+              <FormMessage className="text-sm text-red-500" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm font-medium text-gray-700">Status</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value as AssetStatus}>
                 <FormControl>
                   <SelectTrigger className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <SelectValue placeholder="Select condition" />
+                    <SelectValue placeholder="Select asset status" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="excellent">Excellent</SelectItem>
-                  <SelectItem value="good">Good</SelectItem>
-                  <SelectItem value="fair">Fair</SelectItem>
-                  <SelectItem value="poor">Poor</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="DISPOSED">Disposed</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage className="text-sm text-red-500" />
@@ -243,7 +270,7 @@ export function AssetForm({ onClose }: { onClose?: () => void }) {
             type="submit"
             className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            Create new asset
+            {asset?.id ? 'Update asset' : 'Create new asset'}
           </Button>
         </div>
       </form>
