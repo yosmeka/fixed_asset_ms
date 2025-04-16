@@ -1,24 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fixed Asset Management System (FAMS)
 
-## Getting Started
+A comprehensive web application for managing fixed assets, built with Next.js 15, Prisma, and MySQL.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Asset Management (Create, Read, Update, Delete)
+- Asset Depreciation Calculation
+- Asset Disposal Management
+- Asset History Tracking
+- User Authentication and Authorization
+- Report Generation
+- Dashboard Analytics
+
+## Prerequisites
+
+- Node.js 18.x or later
+- MySQL 8.0 or later
+- npm or yarn package manager
+
+## Setup Instructions
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd fams-app
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Configure environment variables**
+   Create a `.env` file in the root directory with the following variables:
+   ```env
+   DATABASE_URL="mysql://user:password@localhost:3306/fams_db"
+   NEXTAUTH_SECRET="your-secret-key"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
+
+4. **Setup the database**
+   ```bash
+   npx prisma db push
+   # or
+   yarn prisma db push
+   ```
+
+5. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+
+## Project Structure
+
+```
+fams-app/
+├── app/                    # Next.js 15 app directory
+│   ├── api/               # API routes
+│   ├── assets/           # Asset management pages
+│   ├── auth/             # Authentication pages
+│   ├── components/       # Reusable components
+│   └── dashboard/        # Dashboard pages
+├── prisma/               # Database schema and migrations
+├── public/               # Static files
+└── lib/                  # Utility functions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies Used
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**: Next.js 15, React 19, TailwindCSS
+- **Backend**: Next.js API Routes
+- **Database**: MySQL with Prisma ORM
+- **Authentication**: NextAuth.js
+- **UI Components**: Radix UI
+- **Charts**: Recharts
+- **Forms**: React Hook Form with Zod validation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Learn More
 
